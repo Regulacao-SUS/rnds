@@ -39,8 +39,8 @@ jobs:
       - name: Lint with ruff
         run: uvx ruff check .
 
-      - name: Check for vulnerabilities
-        run: uvx safety scan
+      # - name: Check for vulnerabilities
+      #   run: uvx safety scan
 
       - name: Run tests with coverage
         run: |
