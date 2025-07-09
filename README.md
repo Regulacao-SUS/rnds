@@ -14,24 +14,18 @@ Pacote Python para integração com recursos RNDS e RIRA.
 pip install rnds
 ```
 
-ou ainda
-
-```bash
-uv add rnds
-```
-
 ## Uso Básico
 
 ```python
 from rnds import RNDS
 from rnds.rira.rira import RIRA
+```
 
 # Exemplo de uso
 
-# Veja exemplos em exemplos/exemplo_pending.py
+Veja exemplos em [exemplos/exemplo_pending.py](exemplos/exemplo_pending.py)
 
 # Utilize os métodos disponíveis
-```
 
 ## Testes
 
@@ -57,7 +51,6 @@ pytest --cov=rnds --cov-report=term-missing
 Pull requests são bem-vindos!
 
 ## Licença
-
 
 Esta obra tem a [Creative Commons Atribuição-CompartilhaIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/deed.pt).
 
