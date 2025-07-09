@@ -25,6 +25,8 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: "0.7.19"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,16 +54,6 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         if: success()
-      
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/uv
-            ~/.cache/pip
-          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
   
     # Habilita a continuação mesmo se um job falhar
     strategy:
