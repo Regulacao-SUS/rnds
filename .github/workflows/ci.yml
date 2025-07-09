@@ -9,6 +9,10 @@ on:
       - 'uv.lock'
       - 'tests/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Equivalente a fail-fast: false global
+
 jobs:
   lint:
     name: Python Linting
@@ -58,12 +62,7 @@ jobs:
           key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
           restore-keys: |
             ${{ runner.os }}-uv-
-
-# Configuração global para não falhar rápido
-defaults:
-  run:
-    shell: bash
-
-# Habilita a continuação mesmo se um job falhar
-strategy:
-  fail-fast: false
+  
+  # Habilita a continuação mesmo se um job falhar
+  strategy:
+    fail-fast: false
