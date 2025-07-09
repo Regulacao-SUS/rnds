@@ -63,6 +63,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-uv-
   
-  # Habilita a continuação mesmo se um job falhar
-  strategy:
-    fail-fast: false
+    # Habilita a continuação mesmo se um job falhar
+    strategy:
+      fail-fast: false
