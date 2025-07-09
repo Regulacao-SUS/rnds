@@ -40,7 +40,7 @@ jobs:
         run: uvx ruff check .
 
       - name: Check for vulnerabilities
-        run: uvx safety check
+        run: uvx safety scan
 
       - name: Run tests with coverage
         run: |
