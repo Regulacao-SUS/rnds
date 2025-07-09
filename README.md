@@ -1,5 +1,4 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rnds)
-![GitHub License](https://img.shields.io/github/license/Regulacao-SUS/rnds)
 ![GitHub branch status](https://img.shields.io/github/checks-status/Regulacao-SUS/rnds/main)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/rnds)
 ![Codecov](https://img.shields.io/codecov/c/github/Regulacao-SUS/rnds)
