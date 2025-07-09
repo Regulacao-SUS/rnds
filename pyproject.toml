@@ -1,0 +1,36 @@
+[project]
+name = "rnds"
+version = "0.1.0"
+description = "Pacote Python para integração com recursos RNDS e RIRA. Permite autenticação, consulta e manipulação de dados de saúde via APIs oficiais do Ministério da Saúde."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "httpx>=0.28.1",
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=6.2.1",
+    "zeep>=4.3.1",
+]
+
+[tool.setuptools]
+packages = ["rnds"]
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+    "ruff>=0.12.2",
+]
