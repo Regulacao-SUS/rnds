@@ -55,10 +55,13 @@ Pull requests são bem-vindos!
 ## Licença
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Esta obra tem a [Creative Commons Atribuição-CompartilhaIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/deed.pt).
 
 =======
 
+=======
+>>>>>>> fde9ea3 (rebase from main)
 Esta obra tem a [Creative Commons Atribuição-CompartilhaIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/deed.pt).
 
 >>>>>>> 6d1ab9b (fix: correção do readme)
