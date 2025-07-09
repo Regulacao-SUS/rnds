@@ -1,4 +1,4 @@
-name: Run linters
+name: CI
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
       - '**.py'
       - 'pyproject.toml'
       - 'uv.lock'
+      - 'tests/**'
 
 jobs:
   lint:
@@ -32,6 +33,21 @@ jobs:
       
       - name: Lint with ruff
         run: uvx ruff check .
+
+      - name: Check for vulnerabilities
+        run: uvx safety check
+
+      - name: Run tests with coverage
+        run: |
+          uvx pytest tests \
+            --cov=rnds \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-fail-under=80
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        if: success()
       
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -42,3 +58,12 @@ jobs:
           key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
           restore-keys: |
             ${{ runner.os }}-uv-
+
+# Configuração global para não falhar rápido
+defaults:
+  run:
+    shell: bash
+
+# Habilita a continuação mesmo se um job falhar
+strategy:
+  fail-fast: false

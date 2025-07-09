@@ -4,15 +4,6 @@
 ![Codecov](https://img.shields.io/codecov/c/github/Regulacao-SUS/rnds)
 [![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
 
-[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
-
-Esta obra tem a [licença Creative Commons Atribuição-CompartilhaIgual 4.0
-Internacional][cc-by-sa].
-
-[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/deed.fr
-[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
-[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
-
 # rnds
 
 Pacote Python para integração com recursos RNDS e RIRA.
@@ -20,18 +11,24 @@ Pacote Python para integração com recursos RNDS e RIRA.
 ## Instalação
 
 ```bash
-pip install navi-rnds
+pip install rnds
+```
+
+ou ainda
+
+```bash
+uv add rnds
 ```
 
 ## Uso Básico
 
 ```python
-from rnds import Rnds
-from rnds.rira import Rira
+from rnds import RNDS
+from rnds.rira.rira import RIRA
 
 # Exemplo de uso
-rnds = Rnds(token="seu_token")
-rira = Rira(token="seu_token")
+
+[exemplo da solicitação pending do rira](exemplos/exemplo_pending.py)
 
 # Utilize os métodos disponíveis
 ```
@@ -41,18 +38,18 @@ rira = Rira(token="seu_token")
 Execute os testes com:
 
 ```bash
-pytest
+pytest --cov=rnds --cov-report=term-missing
 ```
 
 ## Publicação no PyPI
 
 1. Gere a distribuição:
    ```bash
-   python -m build
+   uv build
    ```
 2. Faça upload para o PyPI:
    ```bash
-   twine upload dist/*
+   uv publish
    ```
 
 ## Contribuição
@@ -61,4 +58,10 @@ Pull requests são bem-vindos!
 
 ## Licença
 
-[MIT](LICENSE)
+Esta obra tem a [licença Creative Commons Atribuição-CompartilhaIgual 4.0
+Internacional][cc-by-sa].
+
+[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
+[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/deed.pt
+[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
+[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
