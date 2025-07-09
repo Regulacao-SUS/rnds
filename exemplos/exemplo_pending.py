@@ -55,7 +55,10 @@ async def exemplo_pending() -> None:
     auth = Auth(
         DummyCacheHandler(), httpx_async_client, os.environ.get("RNDS_AUTH_URL", ""), os.environ.get("RNDS_API_URL", "")
     )
-    bundle = Bundle("c1256970-5464-403d-99f9-f1ef1d1f81ea", "http://www.saude.gov.br/fhir/r4/NamingSystem/BRRNDS-48183")
+    bundle = Bundle(
+        "c1256970-5464-403d-99f9-f1ef1d1f81ea",
+        id_system=os.environ.get("BUND_ID_SYSTEM", ""),
+    )
     data_agora = datetime.now()
     data_autorizacao = data_agora + timedelta(hours=24)
     data_autorizacao = stringify_data(data_autorizacao)
@@ -121,7 +124,12 @@ async def exemplo_pending() -> None:
     }
     bundle_data = bundle.montar_pacote_json(recursos, bundle_timestamp)
 
-    rira_service = RIRA(auth, bundle)
+    rira_service = RIRA(
+        auth=auth,
+        bundle=bundle,
+        service_url=os.environ.get("RNDS_API_URL", ""),
+        bundle_uri=os.environ.get("RNDS_BUNDLE_URL_PATH", ""),
+    )
     return await rira_service.post_documento_clinico(json.dumps(bundle_data))
 
 

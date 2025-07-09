@@ -1,0 +1,52 @@
+name: CD (PyPI Publish)
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Build and Publish with UV
+    runs-on: ubuntu-latest
+    environment: pypi  # Configure este environment no GitHub com seus secrets
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.7.19"
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+      
+      - name: Verify version match
+        run: |
+          PYPROJECT_VERSION=$(uv pip run python -c "from tomllib import loads; print(loads(open('pyproject.toml', 'rb').read())['project']['version'])")
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          if [ "$PYPROJECT_VERSION" != "$TAG_VERSION" ]; then
+            echo "❌ Version mismatch: pyproject.toml ($PYPROJECT_VERSION) ≠ tag ($TAG_VERSION)"
+            exit 1
+          fi
+          echo "✅ Versions match ($PYPROJECT_VERSION)"
+      
+      - name: Build package with UV
+        run: uv build
+      
+      - name: Publish to PyPI with UV
+        env:
+          UV_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: uv publish
+      
+      - name: Verify published version
+        run: |
+          PUBLISHED_VERSION=$(uv pip index versions rnds | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          PYPROJECT_VERSION=$(uv pip run python -c "from tomllib import loads; print(loads(open('pyproject.toml', 'rb').read())['project']['version'])")
+          if [ "$PUBLISHED_VERSION" != "$PYPROJECT_VERSION" ]; then
+            echo "❌ Published version ($PUBLISHED_VERSION) ≠ pyproject.toml ($PYPROJECT_VERSION)"
+            exit 1
+          fi
+          echo "✅ Successfully published version $PUBLISHED_VERSION"

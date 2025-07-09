@@ -1,4 +1,4 @@
-name: Run tests
+name: CI
 
 on:
   pull_request:
@@ -9,9 +9,13 @@ on:
       - 'uv.lock'
       - 'tests/**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Equivalente a fail-fast: false global
+
 jobs:
-  test:
-    name: Python Tests
+  lint:
+    name: Python Linting
     runs-on: ubuntu-latest
     
     steps:
@@ -21,19 +25,26 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: "0.7.19"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
       
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version-file: "pyproject.toml"
-          cache: 'uv'
       
       - name: Install the project
         run: uv sync --locked --all-extras --dev
       
+      - name: Lint with ruff
+        run: uvx ruff check .
+
+      # - name: Check for vulnerabilities
+      #   run: uvx safety scan
+
       - name: Run tests with coverage
         run: |
-          uvx pytest tests \
+          uv run pytest tests \
             --cov=rnds \
             --cov-report=xml \
             --cov-report=html \
@@ -42,13 +53,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         if: success()
-      
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/uv
-            ~/.cache/pip
-          key: ${{ runner.os }}-uv-${{ hashFiles('uv.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-
+  
+    # Habilita a continuação mesmo se um job falhar
+    strategy:
+      fail-fast: false
