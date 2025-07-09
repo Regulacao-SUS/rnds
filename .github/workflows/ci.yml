@@ -44,7 +44,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          uvx pytest tests \
+          uv run pytest tests \
             --cov=rnds \
             --cov-report=xml \
             --cov-report=html \
