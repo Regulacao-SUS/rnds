@@ -2,7 +2,7 @@
 ![GitHub branch status](https://img.shields.io/github/checks-status/Regulacao-SUS/rnds/main)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/rnds)
 ![Codecov](https://img.shields.io/codecov/c/github/Regulacao-SUS/rnds)
-[![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
+[![CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by-sa/4.0/deed.pt)
 
 # rnds
 
@@ -14,24 +14,18 @@ Pacote Python para integração com recursos RNDS e RIRA.
 pip install rnds
 ```
 
-ou ainda
-
-```bash
-uv add rnds
-```
-
 ## Uso Básico
 
 ```python
 from rnds import RNDS
 from rnds.rira.rira import RIRA
+```
 
 # Exemplo de uso
 
-[exemplo da solicitação pending do rira](exemplos/exemplo_pending.py)
+Veja exemplos em [exemplos/exemplo_pending.py](exemplos/exemplo_pending.py)
 
 # Utilize os métodos disponíveis
-```
 
 ## Testes
 
@@ -58,10 +52,6 @@ Pull requests são bem-vindos!
 
 ## Licença
 
-Esta obra tem a [licença Creative Commons Atribuição-CompartilhaIgual 4.0
-Internacional][cc-by-sa].
+Esta obra tem a [Creative Commons Atribuição-CompartilhaIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/deed.pt).
 
-[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
-[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/deed.pt
-[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
-[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
+[![CC BY-SA 4.0](https://licensebuttons.net/l/by-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-sa/4.0/deed.pt)
