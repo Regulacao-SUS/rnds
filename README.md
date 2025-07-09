@@ -3,6 +3,16 @@
 ![GitHub branch status](https://img.shields.io/github/checks-status/Regulacao-SUS/rnds/main)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/rnds)
 ![Codecov](https://img.shields.io/codecov/c/github/Regulacao-SUS/rnds)
+[![CC BY-SA 4.0][cc-by-sa-shield]][cc-by-sa]
+
+[![CC BY-SA 4.0][cc-by-sa-image]][cc-by-sa]
+
+Esta obra tem a [licença Creative Commons Atribuição-CompartilhaIgual 4.0
+Internacional][cc-by-sa].
+
+[cc-by-sa]: http://creativecommons.org/licenses/by-sa/4.0/deed.fr
+[cc-by-sa-image]: https://licensebuttons.net/l/by-sa/4.0/88x31.png
+[cc-by-sa-shield]: https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg
 
 # rnds
 
