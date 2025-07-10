@@ -6,12 +6,12 @@ from httpx import AsyncClient, Response
 
 from exemplos.utils import stringify_data
 from rnds.auth import Auth
-from rnds.rira.appointment import Appointment
-from rnds.rira.bundle import Bundle
-from rnds.rira.composition import Composition
-from rnds.rira.condition import Condition
-from rnds.rira.rira import RIRA
-from rnds.rira.service_request import ServiceRequest
+from rnds.rira import RIRA
+from rnds.rira_resources.appointment import Appointment
+from rnds.rira_resources.bundle import Bundle
+from rnds.rira_resources.composition import Composition
+from rnds.rira_resources.condition import Condition
+from rnds.rira_resources.service_request import ServiceRequest
 
 
 class DummyCacheHandler:
@@ -126,7 +126,6 @@ async def exemplo_pending() -> None:
 
     rira_service = RIRA(
         auth=auth,
-        bundle=bundle,
         service_url=os.environ.get("RNDS_API_URL", ""),
         bundle_uri=os.environ.get("RNDS_BUNDLE_URL_PATH", ""),
     )

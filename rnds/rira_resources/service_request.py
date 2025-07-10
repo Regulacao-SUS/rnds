@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from rnds.rira.base_resource import BaseResource
+from rnds.rira_resources.base_resource import BaseResource
 
 
 class ServiceRequest(BaseResource):

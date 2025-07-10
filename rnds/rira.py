@@ -1,5 +1,4 @@
 from rnds.auth import Auth
-from rnds.rira.bundle import Bundle
 
 
 class RIRA:
@@ -8,7 +7,6 @@ class RIRA:
     def __init__(
         self,
         auth: Auth,
-        bundle: Bundle,
         service_url: str,
         bundle_uri: str,
     ) -> None:
@@ -21,7 +19,6 @@ class RIRA:
             bundle_uri (str, opcional): Caminho do endpoint de bundle.
         """
         self.auth = auth
-        self.bundle = bundle
         self.service_url = service_url
         self.bundle_uri = bundle_uri
 

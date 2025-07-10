@@ -1,4 +1,4 @@
-from rnds.rira.service_request import ServiceRequest
+from rnds.rira_resources.service_request import ServiceRequest
 
 
 def test_service_request_gerar_dict():

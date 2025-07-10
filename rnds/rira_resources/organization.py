@@ -1,4 +1,4 @@
-from rnds.rira.base_resource import BaseResource
+from rnds.rira_resources.base_resource import BaseResource
 
 
 class Organization(BaseResource):

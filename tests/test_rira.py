@@ -2,8 +2,8 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 from rnds.auth import Auth
-from rnds.rira.bundle import Bundle
-from rnds.rira.rira import RIRA
+from rnds.rira_resources.bundle import Bundle
+from rnds.rira import RIRA
 
 
 @pytest.fixture
@@ -22,30 +22,28 @@ def mock_bundle():
 
 
 @pytest.fixture
-def rira_service(mock_auth, mock_bundle):
-    return RIRA(auth=mock_auth, bundle=mock_bundle, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
+def rira_service(mock_auth):
+    return RIRA(auth=mock_auth, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
 
 
 @pytest.mark.asyncio
 async def test_rira_initialization_requires_all_parameters():
     """Testa que a inicialização da classe RIRA requer todos os parâmetros."""
     auth = MagicMock(spec=Auth)
-    bundle = MagicMock(spec=Bundle)
 
     # Testa com todos os parâmetros
-    rira = RIRA(auth=auth, bundle=bundle, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
+    rira = RIRA(auth=auth, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
 
     assert rira.service_url == "https://api.example.com/"
     assert rira.bundle_uri == "fhir/r4/Bundle"
     assert rira.auth == auth
-    assert rira.bundle == bundle
 
     # Testa que falta de parâmetros gera TypeError
     with pytest.raises(TypeError):
-        RIRA(auth=auth, bundle=bundle, service_url="https://api.example.com/")
+        RIRA(auth=auth, service_url="https://api.example.com/")
 
     with pytest.raises(TypeError):
-        RIRA(auth=auth, bundle=bundle, bundle_uri="fhir/r4/Bundle")
+        RIRA(auth=auth, bundle_uri="fhir/r4/Bundle")
 
 
 @pytest.mark.asyncio
@@ -58,9 +56,9 @@ async def test_rira_initialization_requires_all_parameters():
     ],
     ids=["api1", "api2", "custom_path"],
 )
-async def test_rira_initialization_with_different_urls(service_url, bundle_uri, mock_auth, mock_bundle):
+async def test_rira_initialization_with_different_urls(service_url, bundle_uri, mock_auth):
     """Testa a inicialização com diferentes URLs (table driven test)."""
-    rira = RIRA(auth=mock_auth, bundle=mock_bundle, service_url=service_url, bundle_uri=bundle_uri)
+    rira = RIRA(auth=mock_auth, service_url=service_url, bundle_uri=bundle_uri)
 
     assert rira.service_url == service_url
     assert rira.bundle_uri == bundle_uri
@@ -68,11 +66,11 @@ async def test_rira_initialization_with_different_urls(service_url, bundle_uri, 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("token_value", ["token_123", "another_token", "yet_another_token"])
-async def test_test_token_method(token_value, mock_auth, mock_bundle):
+async def test_test_token_method(token_value, mock_auth):
     """Testa o método test_token com diferentes valores de token (table driven test)."""
     mock_auth.get_token.return_value = token_value
 
-    rira = RIRA(auth=mock_auth, bundle=mock_bundle, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
+    rira = RIRA(auth=mock_auth, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
 
     result = await rira.test_token()
 

@@ -1,4 +1,4 @@
-from rnds.rira.condition import Condition
+from rnds.rira_resources.condition import Condition
 
 
 def test_condition_gerar_dict():
