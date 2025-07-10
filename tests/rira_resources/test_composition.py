@@ -1,4 +1,4 @@
-from rnds.rira.composition import Composition
+from rnds.rira_resources.composition import Composition
 
 
 def test_composition_gerar_dict():

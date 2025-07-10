@@ -1,4 +1,4 @@
-from rnds.rira.bundle import Bundle
+from rnds.rira_resources.bundle import Bundle
 
 
 def test_bundle_montar_pacote_json():

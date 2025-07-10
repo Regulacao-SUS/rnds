@@ -1,5 +1,5 @@
-from rnds.rira.base_resource import BaseResource
-from rnds.rira.organization import Organization
+from rnds.rira_resources.base_resource import BaseResource
+from rnds.rira_resources.organization import Organization
 
 
 def test_organization_gerar_dict():

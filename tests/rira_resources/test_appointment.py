@@ -1,4 +1,4 @@
-from rnds.rira.appointment import Appointment
+from rnds.rira_resources.appointment import Appointment
 
 
 def test_appointment_init():
