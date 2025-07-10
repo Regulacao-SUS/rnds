@@ -90,7 +90,7 @@ async def test_get_is_called(auth_instance, mock_cache_handler):
     await auth_instance.get(url="https://api.example.com/resource")
 
     # Verifica
-    auth_instance.get.assert_called()
+    auth_instance.client.get.assert_called()
 
 
 @pytest.mark.asyncio
