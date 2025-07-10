@@ -23,7 +23,10 @@ from rnds.rira.rira import RIRA
 
 # Exemplo de uso
 
-Veja exemplos em [exemplos/exemplo_pending.py](exemplos/exemplo_pending.py)
+Veja exemplos de:
+* Implementação de serviços [RIRA_pending](exemplos/exemplo_rira_pending.py)
+* Implementação de serviços [CFM](exemplos/exemplo_cfm.py)
+* Implementação de serviços [RNDS](exemplos/exemplo_rnds.py)
 
 # Utilize os métodos disponíveis
 

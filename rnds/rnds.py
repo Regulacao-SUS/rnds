@@ -8,14 +8,14 @@ from rnds.auth import Auth
 class RNDS:
     """Serviço para integração e consulta de pacientes na RNDS."""
 
-    def __init__(self, auth: Auth) -> None:
+    def __init__(self, auth: Auth, api_url: str = None) -> None:
         """Inicializa o serviço RNDS.
 
         Args:
             auth (Auth): Serviço de autenticação RNDS.
         """
         self.auth = auth
-        self.api_url = auth.service_url
+        self.api_url = api_url if api_url else auth.service_url
 
     def get_cns_principal(self, todos_cns: list[dict]) -> str | None:
         """Obtém o CNS principal (oficial) de uma lista de identificadores.
@@ -51,7 +51,7 @@ class RNDS:
     async def req_pessoa(self, query: str) -> httpx.Response:
         """Realiza requisição HTTP para buscar paciente na RNDS."""
         url = f"{self.api_url}fhir/r4/Patient?identifier=http://rnds.saude.gov.br/fhir/r4/NamingSystem/{query}"
-        response = await self.auth.client.get(url)
+        response = await self.auth.get(url)
 
         # Adicione esta verificação para lançar exceção em caso de erro HTTP
         if response.status_code >= 400:

@@ -53,7 +53,7 @@ async def exemplo_pending() -> None:
     """Exemplo de criação de bundle com status pending para testes de integração RNDS."""
     httpx_async_client = AsyncClient(cert=(os.getenv("CERT_FILEPATH"), os.getenv("KEY_FILEPATH")), verify=True)
     auth = Auth(
-        DummyCacheHandler(), httpx_async_client, os.environ.get("RNDS_AUTH_URL", ""), os.environ.get("RNDS_API_URL", "")
+        DummyCacheHandler(), httpx_async_client, os.environ.get("RNDS_AUTH_URL"), os.environ.get("RNDS_API_URL")
     )
     bundle = Bundle(
         "c1256970-5464-403d-99f9-f1ef1d1f81ea",

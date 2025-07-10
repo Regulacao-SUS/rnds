@@ -81,3 +81,14 @@ class Auth(BaseAuth):
             "Authorization": os.environ.get("CNS_SEC_SAUDE", ""),
         }
         return headers
+
+    async def get(self, url: str) -> dict[str, str]:
+        """Obtém os headers de autenticação para uma URL específica.
+
+        Args:
+            url (str): URL para a qual os headers serão gerados.
+
+        Returns:
+            dict[str, str]: Headers HTTP com autenticação.
+        """
+        return await self.client.get(url, headers=await self.get_headers())
