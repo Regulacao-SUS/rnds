@@ -81,6 +81,19 @@ async def test_get_token_with_cached_token(auth_instance, mock_cache_handler):
 
 
 @pytest.mark.asyncio
+async def test_get_is_called(auth_instance, mock_cache_handler):
+    """Testa obtenção de token quando já existe no cache."""
+    # Configura
+    mock_cache_handler.set("token_rnds", "cached_token", 3600)
+
+    # Executa
+    await auth_instance.get(url="https://api.example.com/resource")
+
+    # Verifica
+    auth_instance.client.get.assert_called()
+
+
+@pytest.mark.asyncio
 async def test_get_token_without_cached_token(auth_instance, mock_async_client):
     """Testa obtenção de token quando não existe no cache."""
     # Configura
