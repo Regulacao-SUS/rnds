@@ -1,0 +1,17 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(lib, "Biblioteca RNDS") {
+    Component(auth, "Auth", "Gerencia autenticação e tokens")
+    Component(rnds, "RNDS", "Consulta dados de pessoas")
+    Component(rira, "RIRA", "Integração com recursos clínicos (Bundles, Appointments, etc.)")
+    Component(cfm, "CFMClient", "Consulta médicos no CFM")
+    Component(cache, "CacheHandler", "Armazena tokens temporariamente")
+}
+
+Rel(auth, cache, "Armazena/recupera tokens")
+Rel(rnds, auth, "Usa para autenticação")
+Rel(rira, auth, "Usa para autenticação")
+Rel(cfm, auth, "Usa para autenticação")
+
+@enduml
