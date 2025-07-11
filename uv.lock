@@ -388,8 +388,8 @@ wheels = [
 ]
 
 [[package]]
-name = "rnds"
-version = "0.2.1"
+name = "rnds-core-reg"
+version = "0.2.2"
 source = { virtual = "." }
 dependencies = [
     { name = "httpx" },
