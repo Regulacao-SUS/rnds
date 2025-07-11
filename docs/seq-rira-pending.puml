@@ -1,0 +1,27 @@
+@startuml
+actor Usuario
+participant "exemplo_pending()" as Exemplo
+participant "Auth"
+participant "Bundle"
+participant "Condition/ServiceRequest/Appointment/Composition" as Recursos
+participant "RIRA"
+participant "RNDS API"
+
+Usuario -> Exemplo : Executa exemplo_pending()
+Exemplo -> Auth : Cria Auth (com DummyCacheHandler, AsyncClient)
+Exemplo -> Bundle : Cria Bundle
+Exemplo -> Recursos : Cria Condition, ServiceRequest, Appointment, Composition
+Exemplo -> Bundle : bundle.montar_pacote_json(...)
+Exemplo -> RIRA : Cria RIRA (com Auth)
+Exemplo -> RIRA : post_documento_clinico(bundle_data)
+RIRA -> Auth : Solicita token
+Auth -> DummyCacheHandler : get(token)
+DummyCacheHandler -> Auth : Retorna token (ou None)
+Auth -> "RNDS API" : Solicita token (se necessário)
+"RNDS API" --> Auth : Retorna token
+Auth -> DummyCacheHandler : set(token)
+RIRA -> "RNDS API" : POST documento clínico (com token)
+"RNDS API" --> RIRA : Retorna resposta
+RIRA -> Exemplo : Retorna resposta
+Exemplo -> Usuario : Retorna resultado
+@enduml

@@ -40,13 +40,11 @@ class RNDS:
         Returns:
             list[str]: Lista de CNS encontrados.
         """
-        lista_cns = []
-        for identifier_info in todos_cns:
-            system = identifier_info.get("system", "")
-            value = identifier_info.get("value")
-            if "cns" in system and value is not None:  # Agora case sensitive
-                lista_cns.append(value)
-        return lista_cns
+        return [
+            identifier_info.get("value")
+            for identifier_info in todos_cns
+            if "cns" in identifier_info.get("system", "") and identifier_info.get("value") is not None
+        ]
 
     async def req_pessoa(self, query: str) -> httpx.Response:
         """Realiza requisição HTTP para buscar paciente na RNDS."""
@@ -61,12 +59,12 @@ class RNDS:
         return response
 
     async def get_pessoa(
-        self, cpf_ou_cns: str, aget_municipio_id: Callable[[str], int | str], full: bool = None
+        self, identificador_paciente: str, aget_municipio_id: Callable[[str], int | str], full: bool = None
     ) -> dict | None:
         """Obtém informações do paciente a partir do CPF ou CNS.
 
         Args:
-            cpf_ou_cns (str): CPF ou CNS do paciente.
+            identificador_paciente (str): CPF ou CNS do paciente.
             aget_municipio_id (Callable[[str], int | str]): Função para obter o ID do município a partir do código IBGE.
             full (bool, opcional): Se True, retorna todos os dados da resposta.
 
@@ -74,11 +72,11 @@ class RNDS:
             dict | None: Dicionário com informações do paciente ou None se não encontrado.
         """
         try:
-            cpf_cns = cpf_ou_cns.replace(".", "").replace("-", "")
-            if len(cpf_cns) == 11:
-                query_parameter = f"cpf%7C{cpf_cns}"
-            elif len(cpf_cns) > 11:
-                query_parameter = f"cns%7C{cpf_cns}"
+            identificador_paciente = identificador_paciente.replace(".", "").replace("-", "")
+            if len(identificador_paciente) == 11:
+                query_parameter = f"cpf%7C{identificador_paciente}"
+            elif len(identificador_paciente) > 11:
+                query_parameter = f"cns%7C{identificador_paciente}"
             else:
                 return None
 

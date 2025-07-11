@@ -1,0 +1,19 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Usuário", "Desenvolvedor ou sistema que consome a biblioteca RNDS")
+
+System_Boundary(s1, "Projeto RNDS") {
+    Container(lib, "Biblioteca RNDS", "Python", "Implementa autenticação, integração com RNDS, CFM, RIRA, etc.")
+    ContainerDb(cache, "Cache Handler", "Memória", "Armazena tokens temporariamente")
+}
+
+System_Ext(rnds, "RNDS API", "API do Ministério da Saúde")
+System_Ext(cfm, "CFM API", "API do Conselho Federal de Medicina")
+
+Rel(user, lib, "Utiliza")
+Rel(lib, cache, "Armazena tokens em")
+Rel(lib, rnds, "Consulta dados de pessoas", "HTTPS")
+Rel(lib, cfm, "Consulta dados de médicos", "HTTPS")
+
+@enduml

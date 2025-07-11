@@ -1,0 +1,26 @@
+@startuml
+actor Usuario
+participant "Script Exemplo" as Script
+participant "RNDSService" as Service
+participant "Auth"
+participant "RNDS"
+participant "CacheHandler"
+participant "RNDS API"
+
+Usuario -> Script : Executa exemplo_rnds(cpf)
+Script -> Service : Instancia RNDSService()
+Service -> Auth : Cria Auth (com CacheHandler)
+Service -> RNDS : Cria RNDS(Auth)
+Script -> RNDS : get_pessoa(cpf, aget_municipio_id)
+RNDS -> Auth : Solicita token
+Auth -> CacheHandler : get(token)
+CacheHandler -> Auth : Retorna token (ou None)
+Auth -> "RNDS API" : Solicita token (se necessário)
+"RNDS API" --> Auth : Retorna token
+Auth -> CacheHandler : set(token)
+RNDS -> "RNDS API" : Consulta pessoa (com token)
+"RNDS API" --> RNDS : Retorna dados da pessoa
+RNDS -> Script : Retorna dados da pessoa
+Script -> Usuario : Exibe dados
+
+@enduml
