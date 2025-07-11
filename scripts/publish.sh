@@ -51,9 +51,16 @@ echo "✅ Versões compatíveis ($PYPROJECT_VERSION)"
 echo "🏗️ Construindo pacote..."
 uv build
 
-# Publicar
+# Publicar com autenticação explícita
 echo "🚀 Publicando no PyPI..."
-uv publish
+if [ -n "${UV_PYPI_TOKEN:-}" ]; then
+    echo "   Usando token de autenticação..."
+    uv pip publish --token "$UV_PYPI_TOKEN"
+else
+    echo "   Nenhum token encontrado, tentando publicação sem autenticação explícita..."
+    uv pip publish
+fi
+
 
 # Verificação robusta da publicação
 echo "🔍 Verificando publicação no PyPI..."
