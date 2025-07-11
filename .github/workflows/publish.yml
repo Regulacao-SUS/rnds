@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
 
+    permissions:
+      id-token: write
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
       
@@ -26,4 +30,6 @@ jobs:
       - name: Run publish script
         env:
           UV_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: ./scripts/publish.sh
+        run: |
+          chmod +x ./scripts/publish.sh
+          ./scripts/publish.sh

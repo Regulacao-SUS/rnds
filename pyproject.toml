@@ -1,5 +1,5 @@
 [project]
-name = "rnds"
+name = "rnds-core-reg"
 version = "0.2.1"
 description = "Pacote Python para integração com recursos RNDS e RIRA. Permite autenticação, consulta e manipulação de dados de saúde via APIs oficiais do Ministério da Saúde."
 readme = "README.md"
