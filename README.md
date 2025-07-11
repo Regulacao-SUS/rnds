@@ -1,6 +1,6 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rnds)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rnds-core-reg)
 ![GitHub branch status](https://img.shields.io/github/checks-status/Regulacao-SUS/rnds/main)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/rnds)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/rnds-core-reg)
 ![Codecov](https://img.shields.io/codecov/c/github/Regulacao-SUS/rnds)
 [![CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](http://creativecommons.org/licenses/by-sa/4.0/deed.pt)
 
@@ -11,7 +11,7 @@ Pacote Python para integração com recursos RNDS e RIRA.
 ## Instalação
 
 ```bash
-pip install rnds
+pip install rnds-core-reg
 ```
 
 ## Uso Básico
@@ -55,15 +55,5 @@ Pull requests são bem-vindos!
 
 ## Licença
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 Esta obra tem a [Creative Commons Atribuição-CompartilhaIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/deed.pt).
-
-=======
-
-=======
->>>>>>> fde9ea3 (rebase from main)
-Esta obra tem a [Creative Commons Atribuição-CompartilhaIgual 4.0 Internacional](http://creativecommons.org/licenses/by-sa/4.0/deed.pt).
-
->>>>>>> 6d1ab9b (fix: correção do readme)
 [![CC BY-SA 4.0](https://licensebuttons.net/l/by-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-sa/4.0/deed.pt)

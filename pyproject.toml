@@ -1,5 +1,5 @@
 [project]
-name = "rnds"
+name = "rnds-core-reg"
 version = "0.2.1"
 description = "Pacote Python para integração com recursos RNDS e RIRA. Permite autenticação, consulta e manipulação de dados de saúde via APIs oficiais do Ministério da Saúde."
 readme = "README.md"
@@ -34,3 +34,7 @@ dev = [
     "pre-commit>=4.2.0",
     "ruff>=0.12.2",
 ]
+
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
