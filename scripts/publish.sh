@@ -55,10 +55,10 @@ uv build
 echo "🚀 Publicando no PyPI..."
 if [ -n "${UV_PYPI_TOKEN:-}" ]; then
     echo "   Usando token de autenticação..."
-    uv pip publish --token "$UV_PYPI_TOKEN"
+    uv publish --token "$UV_PYPI_TOKEN"
 else
     echo "   Nenhum token encontrado, tentando publicação sem autenticação explícita..."
-    uv pip publish
+    uv publish
 fi
 
 
