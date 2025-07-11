@@ -122,7 +122,7 @@ class Composition(BaseResource):
                                 "value": self.comp_event_performer_id,
                             }
                         },
-                        {"reference": service_request_ref},
+                        {"reference": service_request_ref | appointment_ref},
                     ],
                 }
             ],

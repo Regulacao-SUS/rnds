@@ -53,10 +53,10 @@ async def exemplo_pending() -> None:
     """Exemplo de criação de bundle com status pending para testes de integração RNDS."""
     httpx_async_client = AsyncClient(cert=(os.getenv("CERT_FILEPATH"), os.getenv("KEY_FILEPATH")), verify=True)
     auth = Auth(
-        DummyCacheHandler(), httpx_async_client, os.environ.get("RNDS_AUTH_URL"), os.environ.get("RNDS_API_URL")
+        httpx_async_client, DummyCacheHandler(), os.environ.get("RNDS_AUTH_URL"), os.environ.get("RNDS_API_URL")
     )
     bundle = Bundle(
-        "c1256970-5464-403d-99f9-f1ef1d1f81ea",
+        "c1256970-5464-403d-99f9-f1ef1d1f81ea-15",
         id_system=os.environ.get("BUND_ID_SYSTEM", ""),
     )
     data_agora = datetime.now()
@@ -133,4 +133,12 @@ async def exemplo_pending() -> None:
 
 
 async def main():
-    return await exemplo_pending()
+    ret = await exemplo_pending()
+    print(ret)
+    print(ret.text)
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(main())
