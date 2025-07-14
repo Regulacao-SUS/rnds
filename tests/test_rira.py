@@ -1,9 +1,11 @@
 # test_rira.py
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
 from rnds.auth import Auth
-from rnds.rira_resources.bundle import Bundle
 from rnds.rira import RIRA
+from rnds.rira_resources.bundle import Bundle
 
 
 @pytest.fixture
@@ -35,7 +37,7 @@ async def test_rira_initialization_requires_all_parameters():
     rira = RIRA(auth=auth, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
 
     assert rira.service_url == "https://api.example.com/"
-    assert rira.bundle_uri == "fhir/r4/Bundle"
+    assert rira.bundle_path == "fhir/r4/Bundle"
     assert rira.auth == auth
 
     # Testa que falta de parâmetros gera TypeError
@@ -61,7 +63,7 @@ async def test_rira_initialization_with_different_urls(service_url, bundle_uri, 
     rira = RIRA(auth=mock_auth, service_url=service_url, bundle_uri=bundle_uri)
 
     assert rira.service_url == service_url
-    assert rira.bundle_uri == bundle_uri
+    assert rira.bundle_path == bundle_uri
 
 
 @pytest.mark.asyncio

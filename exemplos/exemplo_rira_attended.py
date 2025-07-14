@@ -9,8 +9,8 @@ from rnds.auth import Auth
 from rnds.rira import RIRA
 
 
-async def exemplo_pending() -> None:
-    """Exemplo de criação de bundle com status pending para testes de integração RNDS."""
+async def exemplo_attended() -> None:
+    """Exemplo de criação de bundle com status attended para testes de integração RNDS."""
     httpx_async_client = AsyncClient(cert=(os.getenv("CERT_FILEPATH"), os.getenv("KEY_FILEPATH")), verify=True)
     auth = Auth(
         httpx_async_client, DummyCacheHandler(), os.environ.get("RNDS_AUTH_URL"), os.environ.get("RNDS_API_URL")
@@ -24,24 +24,35 @@ async def exemplo_pending() -> None:
     cnes_solicitante = "6994547"
     codigo_sigtap = "0209010029"
     cid10 = "K922"
-    rnds_id = "d0723f6a-cd99-4bfb-9799-b0720eaaac2a-r3a1"
-    data = rira_service.criar_documento_pending(
+    cnes_regulador = "6689477"
+    cnes_executante = "6450091"
+    data_autorizacao = "2025-07-14T23:54:25-03:00"
+    data_execucao = "2025-07-14T23:55:25-03:00"
+    cbo = "225225"
+    rnds_id = "ffa80ae7-7575-4919-938d-11a06b78c082-r3a1"
+    data = rira_service.criar_documento_attended(
         id_paciente=cns,
         id_solicitacao=id_solicitacao,
         data_solicitacao=data_agora,
         cnes_solicitante=cnes_solicitante,
         codigo_sigtap=codigo_sigtap,
         cid10=cid10,
+        cnes_regulador=cnes_regulador,
+        cnes_executante=cnes_executante,
+        data_autorizacao=data_autorizacao,
+        cbo=cbo,
+        data_execucao=data_execucao,
         relates_to=rnds_id,
     )
     data = json.dumps(data)
+    print(data)
 
     return await rira_service.post_documento_clinico(data)
 
 
 async def main():
-    ret = await exemplo_pending()  # d0723f6a-cd99-4bfb-9799-b0720eaaac2a-r3a1
-    print(ret)
+    ret = await exemplo_attended()
+    print(ret)  # b297a6ba-a7dc-4e49-95a0-d33aed1321d6-r3a1
 
 
 if __name__ == "__main__":
