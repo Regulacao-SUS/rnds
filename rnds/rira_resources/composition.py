@@ -16,6 +16,8 @@ class Composition(BaseResource):
         comp_title: str,
         comp_event_code: str,
         comp_event_performer_id: str,
+        comp_end: str,
+        comp_start: str | None = None,
         comp_profile: str = os.getenv("COMP_PROFILE"),
         comp_type_system: str = os.getenv("COMP_TYPE_SYSTEM"),
         comp_category_system: str = os.getenv("COMP_CATEGORY_SYSTEM"),
@@ -59,19 +61,22 @@ class Composition(BaseResource):
         self.comp_event_code = comp_event_code
         self.comp_event_performer_system = comp_event_performer_system
         self.comp_event_performer_id = comp_event_performer_id
+        self.comp_start = comp_start
+        self.comp_end = comp_end
 
-    def gerar_dict(self, service_request_ref: str, appointment_ref: str, bundle_timestamp: str) -> dict:
+    def gerar_dict(self, appointment_ref: str, event_ref: str, data_pacote: str, relates_to: str | None = None) -> dict:
         """Gera o dicionário FHIR do recurso Composition.
 
         Args:
             service_request_ref (str): Referência à requisição de serviço.
-            appointment_ref (str): Referência ao agendamento.
+            event_ref (str): Referência ao evento. Se pendente é o fullUrl do ServiceRequest; se não, do Appointment.
             bundle_timestamp (str): Timestamp do bundle.
 
         Returns:
             dict: Estrutura FHIR do Composition.
         """
-        return {
+
+        data = {
             "resourceType": "Composition",
             "meta": {"profile": [self.comp_profile]},
             "status": self.comp_status,
@@ -92,7 +97,7 @@ class Composition(BaseResource):
                     "value": self.comp_subject_id,
                 }
             },
-            "date": bundle_timestamp,
+            "date": data_pacote,
             "author": [
                 {
                     "identifier": {
@@ -114,7 +119,7 @@ class Composition(BaseResource):
                             ]
                         }
                     ],
-                    "period": {"start": bundle_timestamp, "end": bundle_timestamp},
+                    "period": {"end": self.comp_end},
                     "detail": [
                         {
                             "identifier": {
@@ -122,9 +127,23 @@ class Composition(BaseResource):
                                 "value": self.comp_event_performer_id,
                             }
                         },
-                        {"reference": service_request_ref},
                     ],
                 }
             ],
             "section": [{"entry": [{"reference": appointment_ref}]}],
         }
+
+        if self.comp_start:
+            data["event"][0]["period"]["start"] = self.comp_start
+
+        if self.comp_status == "returned-to-requester":
+            data["event"][0]["detail"].append({"reference": event_ref})
+
+        if relates_to:
+            data["relatesTo"] = [
+                {
+                    "code": "replaces",
+                    "targetReference": {"reference": f"Composition/{relates_to}"},
+                }
+            ]
+        return data

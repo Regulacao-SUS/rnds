@@ -11,7 +11,6 @@ class Appointment(BaseResource):
         app_status: str,
         app_service_category_code: str,
         app_service_type_code: str,
-        app_specialty_code: str,
         app_type_code: str,
         app_start_time: str,
         app_end_time: str,
@@ -19,6 +18,7 @@ class Appointment(BaseResource):
         app_patient_id: str,
         app_participant_type_code: str,
         app_participant_status: str,
+        app_specialty_code: str | None = None,
         app_profile: str = os.getenv("APP_PROFILE"),
         app_service_category_system: str = os.getenv("APP_SERVICE_CATEGORY_SYSTEM"),
         app_service_type_system: str = os.getenv("APP_SERVICE_TYPE_SYSTEM"),
@@ -78,7 +78,7 @@ class Appointment(BaseResource):
         Returns:
             dict: Estrutura FHIR do Appointment.
         """
-        return {
+        data = {
             "resourceType": "Appointment",
             "meta": {"profile": [self.app_profile]},
             "status": self.app_status,
@@ -93,7 +93,6 @@ class Appointment(BaseResource):
                 }
             ],
             "serviceType": [{"coding": [{"system": self.app_service_type_system, "code": self.app_service_type_code}]}],
-            "specialty": [{"coding": [{"system": self.app_specialty_system, "code": self.app_specialty_code}]}],
             "appointmentType": {"coding": [{"system": self.app_type_system, "code": self.app_type_code}]},
             "reasonReference": [{"reference": condition_ref}],
             "start": self.app_start_time,
@@ -122,3 +121,8 @@ class Appointment(BaseResource):
                 }
             ],
         }
+
+        if self.app_specialty_code:
+            data["specialty"] = [{"coding": [{"system": self.app_specialty_system, "code": self.app_specialty_code}]}]
+
+        return data

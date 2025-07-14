@@ -16,8 +16,8 @@ class ServiceRequest(BaseResource):
         sr_code_code: str,
         sr_subject_id: str,
         sr_requester_id: str,
-        sr_performer_type_code: str,
-        sr_performer_id: str,
+        sr_performer_type_code: str | None = None,
+        sr_performer_id: str | None = None,
         sr_profile: str = os.getenv("SR_PROFILE"),
         sr_category_system: str = os.getenv("SR_CATEGORY_SYSTEM"),
         sr_code_system: str = os.getenv("SR_CODE_SYSTEM"),
@@ -75,7 +75,7 @@ class ServiceRequest(BaseResource):
         Returns:
             dict: Estrutura FHIR do ServiceRequest.
         """
-        return {
+        data = {
             "resourceType": "ServiceRequest",
             "meta": {"profile": [self.sr_profile]},
             "status": self.sr_status,
@@ -105,16 +105,22 @@ class ServiceRequest(BaseResource):
                     "value": self.sr_requester_id,
                 }
             },
-            "performerType": {
-                "coding": [{"system": self.sr_performer_type_system, "code": self.sr_performer_type_code}]
-            },
-            "performer": [
+            "reasonReference": [{"reference": condition_ref}],
+        }
+
+        if self.sr_performer_type_code:
+            data["performerType"] = (
+                {"coding": [{"system": self.sr_performer_type_system, "code": self.sr_performer_type_code}]},
+            )
+
+        if self.sr_performer_id:
+            data["performer"] = [
                 {
                     "identifier": {
                         "system": self.sr_performer_system,
                         "value": self.sr_performer_id,
                     }
                 }
-            ],
-            "reasonReference": [{"reference": condition_ref}],
-        }
+            ]
+
+        return data
