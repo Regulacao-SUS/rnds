@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["rnds"]
+packages = ["rnds", "rira_resources"]
 
 [tool.ruff]
 line-length = 120
