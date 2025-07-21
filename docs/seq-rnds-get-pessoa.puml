@@ -11,7 +11,7 @@ Usuario -> Script : Executa exemplo_rnds(cpf)
 Script -> Service : Instancia RNDSService()
 Service -> Auth : Cria Auth (com CacheHandler)
 Service -> RNDS : Cria RNDS(Auth)
-Script -> RNDS : get_pessoa(cpf, aget_municipio_id)
+Script -> RNDS : buscar_pessoa(cpf, aget_municipio_id)
 RNDS -> Auth : Solicita token
 Auth -> CacheHandler : get(token)
 CacheHandler -> Auth : Retorna token (ou None)
