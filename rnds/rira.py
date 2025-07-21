@@ -1,8 +1,5 @@
 import os
 
-import backoff
-import httpx
-
 from rnds.auth import Auth
 from rnds.rira_resources.appointment import Appointment
 from rnds.rira_resources.bundle import Bundle
@@ -50,8 +47,7 @@ class RIRA:
         self.composition_path = "fhir/r4/Composition"
         self.bundle_id_system = os.environ.get("BUND_ID_SYSTEM", "")
 
-    @backoff.on_exception(backoff.expo, (httpx.TimeoutException), max_tries=3)
-    async def post_documento_clinico(self, bundle_data: str) -> str:
+    async def submeter_documento_clinico(self, bundle_data: str) -> str:
         """Envia um documento clínico (bundle) para a RNDS.
 
         Args:
@@ -67,8 +63,7 @@ class RIRA:
             raise RIRAException(f"Falha ao se comunicar com o rira. [{ret.status_code}] {ret.text}")
         return ret.headers["location"].split("/")[-1]  # retorna o id gerado pela rnds
 
-    @backoff.on_exception(backoff.expo, (httpx.TimeoutException), max_tries=3)
-    async def get_documento_clinico(self, rnds_doc_id: str) -> str:
+    async def obter_documento_clinico(self, rnds_doc_id: str) -> str:
         headers = await self.auth.get_headers()
         url = f"{self.service_url}{self.composition_path}/{rnds_doc_id}"
         ret = await self.auth.client.get(url, headers=headers)
@@ -211,6 +206,8 @@ class RIRA:
         codigo_modalidade_assistencial: str = "09",
         codigo_carter_solicitacao: str = "routine",  # "01",
     ) -> dict:
+        if not id_paciente:
+            raise IdentificadorPacienteNaoInformado()
         fullurl_regulacao_assistencial = "urn:uuid:transient-0"
         fullurl_agendamento = "urn:uuid:transient-1"
         fullurl_requisicao = "urn:uuid:transient-2"

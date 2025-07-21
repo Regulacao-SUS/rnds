@@ -11,6 +11,7 @@ def test_composition_gerar_dict():
         comp_title="title",
         comp_event_code="ev",
         comp_event_performer_id="perf",
+        comp_end="2023-01-01T00:00:00",
     )
     d = comp.gerar_dict("sr_ref", "app_ref", "2023-01-01T00:00:00")
     assert d["resourceType"] == "Composition"

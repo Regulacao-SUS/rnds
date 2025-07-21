@@ -13,7 +13,7 @@ Exemplo -> Bundle : Cria Bundle
 Exemplo -> Recursos : Cria Condition, ServiceRequest, Appointment, Composition
 Exemplo -> Bundle : bundle.montar_pacote_json(...)
 Exemplo -> RIRA : Cria RIRA (com Auth)
-Exemplo -> RIRA : post_documento_clinico(bundle_data)
+Exemplo -> RIRA : submeter_documento_clinico(bundle_data)
 RIRA -> Auth : Solicita token
 Auth -> DummyCacheHandler : get(token)
 DummyCacheHandler -> Auth : Retorna token (ou None)

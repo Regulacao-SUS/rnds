@@ -38,7 +38,7 @@ async def exemplo_returned_to_requester() -> None:
     )
     data = json.dumps(data)
 
-    return await rira_service.post_documento_clinico(data)
+    return await rira_service.submeter_documento_clinico(data)
 
 
 async def main():

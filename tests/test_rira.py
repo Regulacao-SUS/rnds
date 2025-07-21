@@ -1,136 +1,233 @@
-# test_rira.py
-from unittest.mock import AsyncMock, MagicMock
+import json
+import os
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from rnds.auth import Auth
-from rnds.rira import RIRA
-from rnds.rira_resources.bundle import Bundle
+from rnds.rira import (
+    ATTENDED_STATUS,
+    BOOKED_STATUS,
+    FULFILLED_STATUS,
+    PENDING_STATUS,
+    RETURNED_TO_REQUESTER_STATUS,
+    RIRA,
+    WAITLIST_STATUS,
+    IdentificadorPacienteNaoInformado,
+    RIRAException,
+)
 
 
+# Fixtures
 @pytest.fixture
 def mock_auth():
     auth = MagicMock(spec=Auth)
-    auth.get_token = AsyncMock(return_value="fake_token")
-    auth.get_headers = AsyncMock(return_value={"Authorization": "Bearer fake_token"})
     auth.client = MagicMock()
-    auth.client.post = AsyncMock()
+    auth.get_headers = AsyncMock(return_value={"Authorization": "Bearer token"})
     return auth
 
 
 @pytest.fixture
-def mock_bundle():
-    return MagicMock(spec=Bundle)
+def rira_service(mock_auth):
+    return RIRA(auth=mock_auth, service_url="http://test.com")
 
 
 @pytest.fixture
-def rira_service(mock_auth):
-    return RIRA(auth=mock_auth, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
+def sample_bundle_data():
+    return json.dumps({"resourceType": "Bundle", "type": "document"})
 
 
+@pytest.fixture
+def sample_patient_data():
+    return {
+        "id_paciente": "patient123",
+        "id_solicitacao": "request456",
+        "data_solicitacao": "2023-01-01",
+        "cnes_solicitante": "cnes123",
+        "codigo_sigtap": "sig123",
+        "cid10": "A00",
+    }
+
+
+# Testes para inicialização
+def test_rira_initialization_with_trailing_slash(mock_auth):
+    service = RIRA(auth=mock_auth, service_url="http://test.com/")
+    assert service.service_url == "http://test.com/"
+
+
+def test_rira_initialization_without_trailing_slash(mock_auth):
+    service = RIRA(auth=mock_auth, service_url="http://test.com")
+    assert service.service_url == "http://test.com/"
+
+
+def test_rira_initialization_bundle_id_system(mock_auth):
+    with patch.dict(os.environ, {"BUND_ID_SYSTEM": "test_system"}):
+        service = RIRA(auth=mock_auth, service_url="http://test.com")
+        assert service.bundle_id_system == "test_system"
+
+
+# Testes para submeter_documento_clinico
 @pytest.mark.asyncio
-async def test_rira_initialization_requires_all_parameters():
-    """Testa que a inicialização da classe RIRA requer todos os parâmetros."""
-    auth = MagicMock(spec=Auth)
-
-    # Testa com todos os parâmetros
-    rira = RIRA(auth=auth, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
-
-    assert rira.service_url == "https://api.example.com/"
-    assert rira.bundle_path == "fhir/r4/Bundle"
-    assert rira.auth == auth
-
-    # Testa que falta de parâmetros gera TypeError
-    with pytest.raises(TypeError):
-        RIRA(auth=auth, service_url="https://api.example.com/")
-
-    with pytest.raises(TypeError):
-        RIRA(auth=auth, bundle_uri="fhir/r4/Bundle")
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "service_url, bundle_uri",
-    [
-        ("https://api1.example.com/", "fhir/r4/Bundle1"),
-        ("https://api2.example.com/", "fhir/r4/Bundle2"),
-        ("https://api3.example.com/v2/", "custom/path"),
-    ],
-    ids=["api1", "api2", "custom_path"],
-)
-async def test_rira_initialization_with_different_urls(service_url, bundle_uri, mock_auth):
-    """Testa a inicialização com diferentes URLs (table driven test)."""
-    rira = RIRA(auth=mock_auth, service_url=service_url, bundle_uri=bundle_uri)
-
-    assert rira.service_url == service_url
-    assert rira.bundle_path == bundle_uri
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("token_value", ["token_123", "another_token", "yet_another_token"])
-async def test_test_token_method(token_value, mock_auth):
-    """Testa o método test_token com diferentes valores de token (table driven test)."""
-    mock_auth.get_token.return_value = token_value
-
-    rira = RIRA(auth=mock_auth, service_url="https://api.example.com/", bundle_uri="fhir/r4/Bundle")
-
-    result = await rira.test_token()
-
-    assert result == token_value
-    mock_auth.get_token.assert_called_once()
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "bundle_data,expected_url",
-    [
-        ('{"resourceType": "Bundle"}', "https://api.example.com/fhir/r4/Bundle"),
-        ('{"resourceType": "Bundle", "id": "123"}', "https://api.example.com/fhir/r4/Bundle"),
-        ('{"resourceType": "Bundle", "type": "document"}', "https://api.example.com/fhir/r4/Bundle"),
-    ],
-    ids=["simple_bundle", "bundle_with_id", "bundle_with_type"],
-)
-async def test_post_documento_clinico(bundle_data, expected_url, rira_service, mock_auth):
-    """Testa o método post_documento_clinico com diferentes bundles (table driven test)."""
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_auth.client.post.return_value = mock_response
-
-    result = await rira_service.post_documento_clinico(bundle_data)
-
-    mock_auth.client.post.assert_called_once_with(
-        expected_url, data=bundle_data, headers={"Authorization": "Bearer fake_token"}
-    )
-    assert result == mock_response
-
-
-@pytest.mark.asyncio
-async def test_post_documento_clinico_behavior(rira_service, mock_auth):
-    """Testa o comportamento do método post_documento_clinico (BDD style)."""
-    # Given
-    bundle_data = '{"resourceType": "Bundle", "id": "test-123"}'
+async def test_submeter_documento_clinico_success(rira_service, mock_auth, sample_bundle_data):
     mock_response = MagicMock()
     mock_response.status_code = 201
-    mock_auth.client.post.return_value = mock_response
+    mock_response.headers = {"location": "http://test.com/fhir/r4/Bundle/123"}
+    mock_response.text = "OK"
+    mock_auth.client.post = AsyncMock(return_value=mock_response)
 
-    # When
-    result = await rira_service.post_documento_clinico(bundle_data)
-
-    # Then
-    mock_auth.get_headers.assert_called_once()
+    doc_id = await rira_service.submeter_documento_clinico(sample_bundle_data)
+    assert doc_id == "123"
     mock_auth.client.post.assert_called_once_with(
-        "https://api.example.com/fhir/r4/Bundle", data=bundle_data, headers={"Authorization": "Bearer fake_token"}
+        "http://test.com/fhir/r4/Bundle", data=sample_bundle_data, headers={"Authorization": "Bearer token"}
     )
-    assert result == mock_response
-    assert result.status_code == 201
 
 
 @pytest.mark.asyncio
-async def test_post_documento_clinico_error_handling(rira_service, mock_auth):
-    """Testa o tratamento de erros no método post_documento_clinico."""
-    # Given - Simula um erro na requisição
-    mock_auth.client.post.side_effect = Exception("Connection error")
+async def test_submeter_documento_clinico_failure(rira_service, mock_auth, sample_bundle_data):
+    mock_response = MagicMock()
+    mock_response.status_code = 400
+    mock_response.text = "Bad Request"
+    mock_auth.client.post = AsyncMock(return_value=mock_response)
 
-    # When/Then - Verifica que a exceção é propagada
-    with pytest.raises(Exception, match="Connection error"):
-        await rira_service.post_documento_clinico('{"resourceType": "Bundle"}')
+    with pytest.raises(RIRAException) as excinfo:
+        await rira_service.submeter_documento_clinico(sample_bundle_data)
+    assert "Falha ao se comunicar com o rira. [400] Bad Request" in str(excinfo.value)
+
+
+# Testes para obter_documento_clinico
+@pytest.mark.asyncio
+async def test_obter_documento_clinico_success(rira_service, mock_auth):
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.text = "Document content"
+    mock_auth.client.get = AsyncMock(return_value=mock_response)
+
+    result = await rira_service.obter_documento_clinico("doc123")
+    assert result == mock_response
+    mock_auth.client.get.assert_called_once_with(
+        "http://test.com/fhir/r4/Composition/doc123", headers={"Authorization": "Bearer token"}
+    )
+
+
+@pytest.mark.asyncio
+async def test_obter_documento_clinico_failure(rira_service, mock_auth):
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_response.text = "Not Found"
+    mock_auth.client.get = AsyncMock(return_value=mock_response)
+
+    with pytest.raises(RIRAException) as excinfo:
+        await rira_service.obter_documento_clinico("doc123")
+    assert "Falha ao se comunicar com o rira. [404] Not Found" in str(excinfo.value)
+
+
+# Testes para criar_documento_pending
+def test_criar_documento_pending(rira_service, sample_patient_data):
+    document = rira_service.criar_documento_pending(**sample_patient_data)
+
+    assert document is not None
+    assert isinstance(document, dict)
+    assert "resourceType" in document
+    assert document["resourceType"] == "Bundle"
+    assert "entry" in document
+    assert len(document["entry"]) == 4  # 4 recursos no bundle
+
+
+# Testes para criar_documento_returned_to_requester
+def test_criar_documento_returned_to_requester(rira_service, sample_patient_data):
+    document = rira_service.criar_documento_returned_to_requester(cnes_regulador="cnes_reg456", **sample_patient_data)
+
+    assert document is not None
+    assert isinstance(document, dict)
+    assert "resourceType" in document
+    assert document["resourceType"] == "Bundle"
+
+
+# Testes para criar_documento_booked
+def test_criar_documento_booked(rira_service, sample_patient_data):
+    document = rira_service.criar_documento_booked(
+        cnes_regulador="cnes_reg456",
+        cnes_executante="cnes_exec789",
+        data_autorizacao="2023-01-02",
+        cbo="cbo123",
+        **sample_patient_data,
+    )
+
+    assert document is not None
+    assert isinstance(document, dict)
+    assert "resourceType" in document
+    assert document["resourceType"] == "Bundle"
+
+
+# Testes para criar_documento_attended
+def test_criar_documento_attended(rira_service, sample_patient_data):
+    document = rira_service.criar_documento_attended(
+        cnes_regulador="cnes_reg456",
+        cnes_executante="cnes_exec789",
+        data_autorizacao="2023-01-02",
+        data_execucao="2023-01-03",
+        cbo="cbo123",
+        **sample_patient_data,
+    )
+
+    assert document is not None
+    assert isinstance(document, dict)
+    assert "resourceType" in document
+    assert document["resourceType"] == "Bundle"
+
+
+# Testes para criar_documento (método principal)
+def test_criar_documento_minimal(rira_service, sample_patient_data):
+    document = rira_service.criar_documento(
+        status_composition=PENDING_STATUS, status_appointment=WAITLIST_STATUS, **sample_patient_data
+    )
+
+    assert document is not None
+    assert isinstance(document, dict)
+    assert "resourceType" in document
+    assert document["resourceType"] == "Bundle"
+
+
+def test_criar_documento_with_optional_params(rira_service, sample_patient_data):
+    document = rira_service.criar_documento(
+        status_composition=BOOKED_STATUS,
+        status_appointment=BOOKED_STATUS,
+        cnes_regulador="cnes_reg456",
+        cnes_executante="cnes_exec789",
+        data_autorizacao="2023-01-02",
+        data_execucao="2023-01-03",
+        cbo="cbo123",
+        relates_to="related_doc123",
+        **sample_patient_data,
+    )
+
+    assert document is not None
+    assert isinstance(document, dict)
+    assert "resourceType" in document
+    assert document["resourceType"] == "Bundle"
+
+
+# Testes para comportamento com dados inválidos
+def test_criar_documento_missing_patient_id(rira_service, sample_patient_data):
+    with pytest.raises(IdentificadorPacienteNaoInformado):
+        invalid_data = sample_patient_data.copy()
+        invalid_data["id_paciente"] = ""
+        rira_service.criar_documento(
+            status_composition=PENDING_STATUS, status_appointment=WAITLIST_STATUS, **invalid_data
+        )
+
+
+# Testes para constantes
+def test_constants():
+    assert PENDING_STATUS == "pending"
+    assert RETURNED_TO_REQUESTER_STATUS == "returned-to-requester"
+    assert WAITLIST_STATUS == "waitlist"
+    assert BOOKED_STATUS == "booked"
+    assert ATTENDED_STATUS == "attended"
+    assert FULFILLED_STATUS == "fulfilled"
+
+
+# Testes para exceções
+def test_exceptions():
+    assert issubclass(IdentificadorPacienteNaoInformado, BaseException)
+    assert issubclass(RIRAException, Exception)

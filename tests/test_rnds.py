@@ -1,8 +1,10 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
-from rnds.rnds import RNDS
-from rnds.auth import Auth
+
 import httpx
+import pytest
+
+from rnds.auth import Auth
+from rnds.rnds import RNDS
 
 
 # Fixtures para reutilização nos testes
@@ -18,7 +20,7 @@ def rnds_service(mock_auth):
     return RNDS(mock_auth)
 
 
-# Testes para get_cns_principal
+# Testes para obter_cns_principal
 class TestGetCnsPrincipal:
     @pytest.mark.parametrize(
         "input_data,expected",
@@ -33,13 +35,13 @@ class TestGetCnsPrincipal:
             pytest.param([{"use": "official", "value": None}], None, id="official_cns_with_none_value"),
         ],
     )
-    def test_get_cns_principal(self, rnds_service, input_data, expected):
+    def test_obter_cns_principal(self, rnds_service, input_data, expected):
         """Scenario: Testar diferentes casos de obtenção do CNS principal"""
-        result = rnds_service.get_cns_principal(input_data)
+        result = rnds_service.obter_cns_principal(input_data)
         assert result == expected
 
 
-# Testes para get_lista_cns
+# Testes para obter_lista_cns
 class TestGetListaCns:
     @pytest.mark.parametrize(
         "input_data,expected",
@@ -62,21 +64,21 @@ class TestGetListaCns:
             ),
         ],
     )
-    def test_get_lista_cns_case_sensitive(self, rnds_service, input_data, expected):
+    def test_obter_lista_cns_case_sensitive(self, rnds_service, input_data, expected):
         """Scenario: Testar extração case sensitive de lista de CNS"""
-        result = rnds_service.get_lista_cns(input_data)
+        result = rnds_service.obter_lista_cns(input_data)
         assert result == expected
 
 
-# Testes para req_pessoa
+# Testes para requisitar_pessoa_rnds
 class TestReqPessoa:
     @pytest.mark.asyncio
-    async def test_req_pessoa_correct_url(self, rnds_service, mock_auth):
+    async def test_requisitar_pessoa_rnds_correct_url(self, rnds_service, mock_auth):
         """Scenario: A requisição deve usar a URL correta"""
         mock_auth.get.return_value = httpx.Response(200, json={})
 
         query = "test_query"
-        await rnds_service.req_pessoa(query)
+        await rnds_service.requisitar_pessoa_rnds(query)
 
         expected_url = (
             f"{rnds_service.api_url}fhir/r4/Patient?identifier=http://rnds.saude.gov.br/fhir/r4/NamingSystem/{query}"
@@ -84,7 +86,7 @@ class TestReqPessoa:
         mock_auth.get.assert_called_once_with(expected_url)
 
 
-# Testes para get_pessoa
+# Testes para buscar_pessoa
 class TestGetPessoa:
     @pytest.mark.asyncio
     @pytest.mark.parametrize(
@@ -99,7 +101,7 @@ class TestGetPessoa:
         """Scenario: A geração do parâmetro de consulta deve funcionar para diferentes formatos de entrada"""
         mock_auth.get.return_value = httpx.Response(200, json={})
 
-        await rnds_service.get_pessoa(input_cpf_cns, AsyncMock())
+        await rnds_service.buscar_pessoa(input_cpf_cns, AsyncMock())
 
         expected_url = f"{rnds_service.api_url}fhir/r4/Patient?identifier=http://rnds.saude.gov.br/fhir/r4/NamingSystem/{query_param}"
         mock_auth.get.assert_called_once_with(expected_url)
@@ -110,7 +112,7 @@ class TestGetPessoa:
         mock_response = {"entry": [{"resource": {"id": "123"}}]}
         mock_auth.get.return_value = httpx.Response(200, json=mock_response)
 
-        result = await rnds_service.get_pessoa("12345678909", AsyncMock(), full=True)
+        result = await rnds_service.buscar_pessoa("12345678909", AsyncMock(), full=True)
 
         assert result == mock_response
 
@@ -155,7 +157,7 @@ class TestGetPessoa:
         async def mock_get_municipio_id(codigo_ibge):
             return 1 if codigo_ibge == "1234567" else None
 
-        result = await rnds_service.get_pessoa("11122233344", mock_get_municipio_id)
+        result = await rnds_service.buscar_pessoa("11122233344", mock_get_municipio_id)
 
         assert result == {
             "cep": "12345678",
@@ -172,6 +174,8 @@ class TestGetPessoa:
             "complemento": None,
             "data_nascimento": "2000-01-01",
             "raca_cor": "1",
+            "falecido": False,
+            "data_falecimento": None,
         }
 
     @pytest.mark.asyncio
@@ -179,7 +183,7 @@ class TestGetPessoa:
         """Scenario: Resposta sem entry deve retornar None"""
         mock_auth.get.return_value = httpx.Response(200, json={})
 
-        result = await rnds_service.get_pessoa("11122233344", AsyncMock())
+        result = await rnds_service.buscar_pessoa("11122233344", AsyncMock())
 
         assert result is None
 
@@ -195,7 +199,7 @@ class TestGetPessoa:
 
         # Verifique se a exceção específica é lançada
         with pytest.raises(httpx.HTTPStatusError) as exc_info:
-            await rnds_service.get_pessoa("11122233344", AsyncMock())
+            await rnds_service.buscar_pessoa("11122233344", AsyncMock())
 
         # Verifique se o status code na exceção é 404
         assert exc_info.value.response.status_code == 404
@@ -226,7 +230,7 @@ class TestGetPessoa:
             }
             mock_auth.get.return_value = httpx.Response(200, json=mock_response)
 
-            result = await rnds_service.get_pessoa("11122233344", AsyncMock())
+            result = await rnds_service.buscar_pessoa("11122233344", AsyncMock())
             assert result["sexo"] == expected
 
     @pytest.mark.asyncio
@@ -274,18 +278,18 @@ class TestGetPessoa:
             }
             mock_auth.get.return_value = httpx.Response(200, json=mock_response)
 
-            result = await rnds_service.get_pessoa("11122233344", mock_get_municipio_id)
+            result = await rnds_service.buscar_pessoa("11122233344", mock_get_municipio_id)
 
             for key in expected:
                 assert result[key] == expected[key]
 
     @pytest.mark.asyncio
-    async def test_get_pessoa_returns_none_when_empty_entry(self, rnds_service, mock_auth):
+    async def test_buscar_pessoa_returns_none_when_empty_entry(self, rnds_service, mock_auth):
         """Scenario: Quando 'entry' existe mas está vazio, deve retornar None"""
         # Mock da resposta com entry vazio
         mock_response = httpx.Response(200, json={"entry": []})
         mock_auth.get.return_value = mock_response
 
-        result = await rnds_service.get_pessoa("1", AsyncMock())
+        result = await rnds_service.buscar_pessoa("1", AsyncMock())
 
         assert result is None

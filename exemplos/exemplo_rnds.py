@@ -40,7 +40,7 @@ async def aget_municipio_id(codigo_ibge: str) -> str:
 async def exemplo_rnds(cpf: str) -> None:
     """Exemplo de uso do RNDS para consultar pessoa."""
     rnds_client = RNDSService()
-    pessoa = await rnds_client.get_pessoa(cpf, aget_municipio_id)
+    pessoa = await rnds_client.buscar_pessoa(cpf, aget_municipio_id)
     print("Dados da pessoa:", pessoa)
 
 
