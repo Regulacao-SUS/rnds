@@ -181,4 +181,4 @@ class RNDS:
         if not req.is_success:
             return None
 
-        return await self._formatar_req_parcial(req.json, callback_parser_municipio_ibge_id)
+        return await self._formatar_req_parcial(req.json(), callback_parser_municipio_ibge_id)
