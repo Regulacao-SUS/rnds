@@ -1,3 +1,4 @@
+import asyncio
 from typing import Callable
 
 import httpx
@@ -58,38 +59,7 @@ class RNDS:
             )
         return response
 
-    async def buscar_pessoa(
-        self,
-        identificador_paciente: str,
-        callback_parser_municipio_ibge_id: Callable[[str], int | str],
-        full: bool = None,
-    ) -> dict | None:
-        """Obtém informações do paciente a partir do CPF ou CNS.
-
-        Args:
-            identificador_paciente (str): CPF ou CNS do paciente.
-            callback_parser_municipio_ibge_id (Callable[[str], int | str]): Função para obter o ID do município a partir do código IBGE.
-            full (bool, opcional): Se True, retorna todos os dados da resposta.
-
-        Returns:
-            dict | None: Dicionário com informações do paciente ou None se não encontrado.
-        """
-        identificador_paciente = identificador_paciente.replace(".", "").replace("-", "")
-        if len(identificador_paciente) == 11:
-            query_parameter = f"cpf%7C{identificador_paciente}"
-        elif len(identificador_paciente) > 11:
-            query_parameter = f"cns%7C{identificador_paciente}"
-        else:
-            return None
-
-        req = await self.requisitar_pessoa_rnds(query_parameter)
-        if req.is_success and full:
-            return req.json()
-
-        if not req.is_success:
-            return None
-
-        dados = req.json()
+    async def _formatar_req_parcial(self, dados, callback_parser_municipio_ibge_id):
         if not dados.get("entry", None) or not isinstance(dados.get("entry"), list):
             return None
 
@@ -173,3 +143,42 @@ class RNDS:
                     pass
 
         return paciente_info
+
+    async def buscar_pessoa(
+        self,
+        identificador_paciente: str,
+        callback_parser_municipio_ibge_id: Callable[[str], int | str],
+        full: bool = None,
+    ) -> dict | None:
+        """Obtém informações do paciente a partir do CPF ou CNS.
+
+        Args:
+            identificador_paciente (str): CPF ou CNS do paciente.
+            callback_parser_municipio_ibge_id (Callable[[str], int | str]): Função para obter o ID do município a partir do código IBGE.
+            full (bool, opcional): Se True, retorna todos os dados da resposta.
+
+        Returns:
+            dict | None: Dicionário com informações do paciente ou None se não encontrado.
+        """
+        identificador_paciente = identificador_paciente.replace(".", "").replace("-", "")
+        if len(identificador_paciente) == 11:
+            query_parameter = f"cpf%7C{identificador_paciente}"
+        elif len(identificador_paciente) > 11:
+            query_parameter = f"cns%7C{identificador_paciente}"
+        else:
+            return None
+
+        for tentativa in range(5):
+            req = await self.requisitar_pessoa_rnds(query_parameter)
+            if req.is_success:
+                break
+            sleep_time = max((2**tentativa) / 10, 1.2)
+            await asyncio.sleep(sleep_time)
+
+        if req.is_success and full:
+            return req.json()
+
+        if not req.is_success:
+            return None
+
+        return await self._formatar_req_parcial(req.json(), callback_parser_municipio_ibge_id)
