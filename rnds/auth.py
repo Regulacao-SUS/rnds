@@ -46,7 +46,7 @@ class Auth(BaseAuth):
         self.client = client
 
     async def auth(self) -> None:
-        method = os.environ.get("RNDS_AUTH_MECANISMO", "basic").lower() or "basic"
+        method = os.environ.get("RNDS_AUTH_MECANISMO", "basic").lower() or "api"
         if method == "basic":
             await self.basic_auth()
 
