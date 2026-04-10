@@ -30,6 +30,10 @@ class Auth(BaseAuth):
         cache_handler: CacheProtocol,
         auth_url: str,
         service_url: str,
+        client_id: str,
+        client_secret: str,
+        external_api_base_url: str,
+        mecanismo: str
     ) -> None:
         """Inicializa o serviço de autenticação RNDS.
 
@@ -44,9 +48,13 @@ class Auth(BaseAuth):
         self.auth_url = auth_url.rstrip("/") + "/token"
         self.service_url = service_url
         self.client = client
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.external_api_base_url = external_api_base_url
+        self.mecanismo = mecanismo
 
     async def auth(self) -> None:
-        method = os.environ.get("RNDS_AUTH_MECANISMO", "basic").lower() or "api"
+        method = self.mecanismo.lower() or "api"
         if method == "basic":
             await self.basic_auth()
 
@@ -66,9 +74,9 @@ class Auth(BaseAuth):
 
     async def external_api_auth(self) -> None:
         """Realiza autenticação na RNDS utilizando uma API externa e armazena o token no cache."""
-        client_id = os.environ.get("RNDS_CLIENT_ID", "")
-        client_secret = os.environ.get("RNDS_CLIENT_SECRET", "")
-        external_api_base_url = os.environ.get("RNDS_AUTH_URL_API", "")
+        client_id = self.client_id
+        client_secret = self.client_secret
+        external_api_base_url = self.external_api_base_url
 
         authorization_code_payload = {
             "username": client_id,
