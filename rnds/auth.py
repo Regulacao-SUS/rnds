@@ -46,6 +46,14 @@ class Auth(BaseAuth):
         self.client = client
 
     async def auth(self) -> None:
+        method = os.environ.get("RNDS_AUTH_MECANISMO", "basic").lower()
+        if method == "basic":
+            await self.basic_auth()
+
+        elif method == "api":
+            await self.external_api_auth()
+
+    async def basic_auth(self) -> None:
         """Realiza autenticação na RNDS e armazena o token no cache."""
         response = await self.client.get(self.auth_url)
         response.raise_for_status()
@@ -55,6 +63,40 @@ class Auth(BaseAuth):
             expires_in_miliseconds = response.json().get("expires_in", None)
             seconds = int(expires_in_miliseconds / 1000) - 600
             self.cache.set("token_rnds", access_token, seconds)
+
+    async def external_api_auth(self) -> None:
+        """Realiza autenticação na RNDS utilizando uma API externa e armazena o token no cache."""
+        client_id = os.environ.get("RNDS_CLIENT_ID", "")
+        client_secret = os.environ.get("RNDS_CLIENT_SECRET", "")
+        external_api_base_url = os.environ.get("RNDS_AUTH_URL_API", "")
+
+        authorization_code_payload = {
+            "username": client_id,
+            "password": client_secret,
+        }
+        authorization_code_response = await self.client.post(
+            f"{external_api_base_url}/login",
+            json=authorization_code_payload,
+        )
+        authorization_code_response.raise_for_status()
+        authorization_code = authorization_code_response.json().get("access_token", None)
+
+        access_token_header = {"Authorization": f"Bearer {authorization_code}"}
+        access_token_response = await self.client.post(
+            f"{external_api_base_url}/token",
+            headers=access_token_header,
+        )
+        access_token_response.raise_for_status()
+
+        if access_token_response.is_success and access_token_response.json():
+            access_token = access_token_response.json().get("access_token", None)
+            if "Bearer" in access_token:
+                access_token = access_token.split("Bearer ")[1]
+
+            expires_in_miliseconds = access_token_response.json().get("expires_in", None)
+            seconds = int(expires_in_miliseconds / 1000) - 600
+            self.cache.set("token_rnds", access_token, seconds)
+
 
     async def get_token(self) -> str:
         """Obtém o token de acesso da RNDS, autenticando se necessário.
